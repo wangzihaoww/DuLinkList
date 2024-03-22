@@ -1,0 +1,272 @@
+#include<cstdio>
+#include<iostream>
+#include<cstdlib>
+#include<string>
+ 
+using namespace std;
+
+struct Node {
+    int data; // 节点数据
+    Node* next; // 指向下一个节点的指针
+};
+
+class LinkedList {
+private:
+    Node* head; // 头节点指针
+    Node* tail; // 尾节点指针
+    int count; // 链表中节点的个数
+
+public:
+    // 构造函数，初始化链表为空链表
+    LinkedList() {
+        head = nullptr;
+        tail = nullptr;
+        count = 0;
+    }
+
+    // 分配结点：为链表中的每个结点分配内存空间
+    Node* createNode(int value) {
+        Node* newNode = new Node;
+        newNode->data = value;
+        newNode->next = nullptr;
+        return newNode;
+    }
+
+    // 释放结点：释放链表中的每个结点所占用的内存空间
+    void freeNode(Node* node) {
+        delete node;
+    }
+
+    // 构造空链表：创建一个空链表，即没有任何结点的链表
+    void createEmptyList() {
+        head = nullptr;
+        tail = nullptr;
+        count = 0;
+    }
+
+    // 销毁链表：销毁整个链表，释放所有结点的内存空间
+    void destroyList() {
+        Node* current = head;
+        while (current != nullptr) {
+            Node* temp = current;
+            current = current->next;
+            freeNode(temp);
+        }
+        head = nullptr;
+        tail = nullptr;
+        count = 0;
+    }
+
+    // 重置链表为空链表：将链表清空，使其成为一个空链表
+    void resetList() {
+        destroyList();
+    }
+
+    // 插入结点在头结点前：在链表的头部插入一个新的结点
+    void insertNodeAtHead(int value) {
+        Node* newNode = createNode(value);
+        if (head == nullptr) {
+            head = newNode;
+            tail = newNode;
+        }
+        else {
+            newNode->next = head;
+            head = newNode;
+        }
+        count++;
+    }
+
+    // 删除头结点并返回：删除链表的头结点，并返回该结点的值
+    int deleteHeadNode() {
+        if (head == nullptr) {
+            return -1; // 链表为空，返回-1表示删除失败
+        }
+        int value = head->data;
+        Node* temp = head;
+        head = head->next;
+        freeNode(temp);
+        count--;
+        if (head == nullptr) {
+            tail = nullptr;
+        }
+        return value;
+    }
+
+    // 将s所指的一串结点链接在链表的最后一个结点并改变尾指针指向新尾结点
+    void appendNodes(Node* s) {
+        if (s == nullptr) {
+            return;
+        }
+        if (head == nullptr) {
+            head = s;
+            tail = s;
+        }
+        else {
+            tail->next = s;
+            while (tail->next != nullptr) {
+                tail = tail->next;
+            }
+        }
+        count++;
+    }
+
+    // 删除尾结点并返回并改变尾指针指向新尾结点
+    int deleteTailNode() {
+        if (head == nullptr) {
+            return -1; // 链表为空，返回-1表示删除失败
+        }
+        int value = tail->data;
+        if (head == tail) {
+            freeNode(head);
+            head = nullptr;
+            tail = nullptr;
+        }
+        else {
+            Node* current = head;
+            while (current->next != tail) {
+                current = current->next;
+            }
+            freeNode(tail);
+            tail = current;
+            tail->next = nullptr;
+        }
+        count--;
+        return value;
+    }
+
+    // 插入s所指结点插入在p结点之前
+    void insertNodeBefore(Node* s, Node* p) {
+        if (s == nullptr || p == nullptr) {
+            return;
+        }
+        if (head == p) {
+            s->next = head;
+            head = s;
+        }
+        else {
+            Node* current = head;
+            while (current != nullptr && current->next != p) {
+                current = current->next;
+            }
+            if (current != nullptr) {
+                s->next = p;
+                current->next = s;
+            }
+        }
+        count++;
+    }
+
+    // 插入s所指结点在p结点之后
+    void insertNodeAfter(Node* s, Node* p) {
+        if (s == nullptr || p == nullptr) {
+            return;
+        }
+        s->next = p->next;
+        p->next = s;
+        if (tail == p) {
+            tail = s;
+        }
+        count++;
+    }
+
+    // 用e更新p结点元素的值
+    void updateNodeValue(Node* p, int e) {
+        if (p != nullptr) {
+            p->data = e;
+        }
+    }
+
+    // 返回p结点元素的值
+    int getNodeValue(Node* p) {
+        if (p != nullptr) {
+            return p->data;
+        }
+        return -1; // 结点不存在，返回-1表示获取失败
+    }
+
+    // 查询链表是否为空
+    bool isEmpty() {
+        return head == nullptr;
+    }
+
+    // 返回链表元素个数
+    int getCount() {
+        return count;
+    }
+
+    // 返回链表中结点p位置
+    int getNodePosition(Node* p) {
+        Node* current = head;
+        int position = 0;
+        while (current != nullptr && current != p) {
+            current = current->next;
+            position++;
+        }
+        if (current == nullptr) {
+            return -1; // 结点不存在，返回-1表示获取失败
+        }
+        return position;
+    }
+
+    // 返回头结点位置
+    int getHeadPosition() {
+        return getNodePosition(head);
+    }
+
+    // 返回尾结点位置
+    int getTailPosition() {
+        return getNodePosition(tail);
+    }
+
+    // 返回p结点前驱位置
+    int getPredecessorPosition(Node* p) {
+        if (p == nullptr || p == head) {
+            return -1; // 结点不存在或为头结点，返回-1表示获取失败
+        }
+        Node* current = head;
+        int position = 0;
+        while (current != nullptr && current->next != p) {
+            current = current->next;
+            position++;
+        }
+        if (current == nullptr) {
+            return -1; // 结点不存在，返回-1表示获取失败
+        }
+        return position;
+    }
+
+    // 返回p结点后驱位置
+    int getSuccessorPosition(Node* p) {
+        if (p == nullptr || p == tail) {
+            return -1; // 结点不存在或为尾结点，返回-1表示获取失败
+        }
+        Node* current = head;
+        int position = 0;
+        while (current != nullptr && current != p->next) {
+            current = current->next;
+            position++;
+        }
+        if (current == nullptr) {
+            return -1; // 结点不存在，返回-1表示获取失败
+        }
+        return position;
+    }
+
+    // 查询结点：根据给定的条件查询链表中符合条件的结点
+    Node* searchNode(/*给定的条件*/) {
+        // 根据给定的条件遍历链表，找到符合条件的结点并返回
+        return nullptr; // 未找到符合条件的结点，返回nullptr
+    }
+
+    // 查询元素：根据给定的元素值查询链表中第一个匹配的结点
+    Node* searchNodeByValue(int value) {
+        Node* current = head;
+        while (current != nullptr) {
+            if (current->data == value) {
+                return current;
+            }
+            current = current->next;
+        }
+        return nullptr; // 未找到匹配的结点，返回nullptr
+    }
+};
